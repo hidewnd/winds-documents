@@ -563,16 +563,26 @@ nav {
 .prose .expressive-code .copy button::before {
   border: 0;
 }
-.prose .expressive-code .frame .header {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
+/* 无标题代码块：Expressive Code 不会渲染 header 语言标签，这里用 pre 上的
+   data-language 属性在右上角画一个语言标签；复制按钮保持在最右、层级更高。
+   标签无背景、无边框、禁止选中与点击。 */
+.prose .expressive-code .frame:not(.has-title) pre[data-language] {
+  position: relative;
+}
+.prose .expressive-code .frame:not(.has-title) pre[data-language]::before {
+  content: attr(data-language);
+  position: absolute;
+  top: .5rem;
+  right: 3.1rem;
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: .8rem;
+  line-height: 1.4;
+  letter-spacing: .03em;
+  text-transform: lowercase;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .prose .expressive-code .frame.is-terminal { --button-spacing: .4rem; }
 .prose .expressive-code .frame.is-terminal pre {
