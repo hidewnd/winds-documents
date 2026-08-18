@@ -50,10 +50,6 @@ body {
   min-width: 320px;
   margin: 0;
   background-color: var(--page);
-  background-image: url('../assets/site-ambient-v2.webp');
-  background-position: center;
-  background-size: cover;
-  background-attachment: fixed;
   color: var(--text);
   font-family: var(--sans);
   font-size: 15px;
@@ -61,7 +57,25 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-:root[data-theme='dark'] body { background-image: none; }
+/* 首页背景图轮播：固定在视口底层，交叉淡入切换，内容层盖于其上。 */
+.background-carousel {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.background-slide {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.background-slide[data-active='true'] {
+  opacity: 1;
+}
+:root[data-theme='dark'] .background-carousel { display: none; }
 
 a {
   color: inherit;
@@ -757,21 +771,16 @@ body {
   height: 42px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, .7);
-  border-radius: 11px;
-  background: var(--header);
-  box-shadow: 0 7px 20px rgba(52, 74, 98, .12);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
   color: var(--text);
-  transition: transform .2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow .2s ease, color .2s ease;
+  transition: color .2s ease, transform .2s ease;
 }
 .footer-links a:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(52, 74, 98, .18);
   color: var(--accent-soft);
 }
 .footer-links svg { width: 20px; }
+.footer-links img { width: 20px; height: 20px; object-fit: contain; }
+.footer-links i { font-size: 20px; font-style: normal; line-height: 1; }
 .site-footer p {
   display: flex;
   flex-wrap: wrap;
@@ -789,7 +798,6 @@ body {
 }
 
 @media (max-width: 940px) {
-  body { background-attachment: scroll; }
   .site-header { top: 0; }
   .nav-shell { flex-wrap: wrap; padding: 10px 0 0; }
   .brand span { display: inline; }

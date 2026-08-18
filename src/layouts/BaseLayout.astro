@@ -3,7 +3,7 @@ import { AstroFont } from 'astro-font';
 import { join } from 'node:path';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
-import { site } from '../lib/site';
+import { backgroundImages, iconLibraryStyles, site } from '../lib/site';
 import '../styles/global.css';
 
 interface Props {
@@ -33,7 +33,8 @@ const ogImage = image ? new URL(image, site.url) : undefined;
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
-    <link rel="icon" href="data:," />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    {iconLibraryStyles.map((href) => <link rel="stylesheet" href={href} />)}
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonical} />
     <link rel="alternate" type="application/rss+xml" title={site.title} href="/rss.xml" />
@@ -80,6 +81,15 @@ const ogImage = image ? new URL(image, site.url) : undefined;
     </script>
   </head>
   <body class:list={{ 'is-home': home }}>
+    <div class="background-carousel" aria-hidden="true">
+      {backgroundImages.map((src, index) => (
+        <div
+          class="background-slide"
+          style={`background-image:url('${src}')`}
+          data-active={index === 0 ? 'true' : 'false'}
+        ></div>
+      ))}
+    </div>
     <a class="skip-link" href="#main-content">跳到正文</a>
     <div class="page-canvas">
       <SiteHeader />
@@ -89,5 +99,18 @@ const ogImage = image ? new URL(image, site.url) : undefined;
       <slot name="floating" />
       <SiteFooter />
     </div>
+    <script>
+      // 背景图轮播：按固定间隔交叉淡入切换；尊重系统「减少动态」偏好。
+      const slides = Array.from(document.querySelectorAll<HTMLElement>('.background-slide'));
+      if (slides.length > 1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        let current = 0;
+        window.setInterval(() => {
+          const next = (current + 1) % slides.length;
+          slides[current].dataset.active = 'false';
+          slides[next].dataset.active = 'true';
+          current = next;
+        }, 8000);
+      }
+    </script>
   </body>
 </html>

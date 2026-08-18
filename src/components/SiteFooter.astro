@@ -1,10 +1,9 @@
 ---
 import { Icon } from 'astro-icon/components';
-import { site } from '../lib/site';
+import { site, socialLinks } from '../lib/site';
 
-const links = [
-  { href: site.github, label: 'GitHub', icon: 'tabler:brand-github', external: true },
-  { href: 'https://gitee.com/hidewnd/', label: 'Gitee', icon: 'tabler:brand-git', external: true },
+// 站内链接仍用 astro-icon 渲染，社交链接改由 site.ts 的 socialLinks 配置驱动。
+const internalLinks = [
   { href: '/rss.xml', label: 'RSS', icon: 'tabler:rss' },
   { href: '/friends/', label: '友链', icon: 'tabler:bookmarks' },
 ];
@@ -12,22 +11,27 @@ const links = [
 
 <footer class="site-footer">
   <div class="footer-links" aria-label="站点链接">
-    {links.map((link) => (
-      <a
-        href={link.href}
-        aria-label={link.label}
-        title={link.label}
-        target={link.external ? '_blank' : undefined}
-        rel={link.external ? 'noopener noreferrer' : undefined}
-      >
+    {socialLinks.map((link) => (
+      <a href={link.link} aria-label={link.title} title={link.title} target="_blank" rel="noopener noreferrer">
+        {link.iconUrl ? (
+          <img src={link.iconUrl} alt="" loading="lazy" />
+        ) : link.icon ? (
+          <Icon name={link.icon} aria-hidden="true" />
+        ) : (
+          <i class={link.iconClass} aria-hidden="true"></i>
+        )}
+      </a>
+    ))}
+    {internalLinks.map((link) => (
+      <a href={link.href} aria-label={link.label} title={link.label}>
         <Icon name={link.icon} aria-hidden="true" />
       </a>
     ))}
   </div>
   <p>
-    <span>Astro · Vdoing 配色</span>
+    <span>Power by Astro</span>
     <span class="footer-divider" aria-hidden="true">|</span>
     <span>Copyright © 2024–{new Date().getFullYear()} {site.author}</span>
   </p>
-  <small>本站使用 HarmonyOS Sans 字体</small>
+  <small></small>
 </footer>
