@@ -14,13 +14,14 @@ interface Props {
   date: Date;
   category: { title: string; href: string };
   description?: string;
+  image?: string;
   headings?: ArticleHeading[];
 }
 
-const { title, date, category, description, headings = [] } = Astro.props;
+const { title, date, category, description, image, headings = [] } = Astro.props;
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} image={image}>
   <div class="article-layout">
     <article class="post-shell">
       <header class="post-header">

@@ -1,64 +1,33 @@
 ---
+import PagefindConfig from 'astro-pagefind/components/PagefindConfig.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import {
-  formatDate,
-  getCategory,
-  getEntryUrl,
-  getExcerpt,
-  getPublishedDocuments,
-} from '../../lib/content';
-
-const posts = await getPublishedDocuments();
 ---
 
 <BaseLayout title="搜索" description="搜索 Hidewnd Docs 的文章。" noindex>
   <header class="page-header search-header">
     <p>SEARCH</p>
     <h1>搜索</h1>
-    <label for="search-input">输入标题、摘要或分类</label>
-    <input id="search-input" name="q" type="search" placeholder="例如：Spring Boot" autocomplete="off" />
+    <span>输入关键词，全文检索标题与正文。</span>
+    <PagefindConfig />
+    <pagefind-input placeholder="例如：Spring Boot" autofocus></pagefind-input>
   </header>
-  <p id="search-status" class="search-status" aria-live="polite">共 {posts.length} 篇内容</p>
-  <div id="search-results" class="search-results">
-    {posts.map((entry) => {
-      const category = getCategory(entry);
-      const excerpt = getExcerpt(entry);
-      return (
-        <article data-search-item data-search={`${entry.data.title} ${category.title} ${excerpt}`.toLowerCase()}>
-          <div><span>{category.title}</span><time>{formatDate(entry.data.date)}</time></div>
-          <h2><a href={getEntryUrl(entry)}>{entry.data.title}</a></h2>
-          <p>{excerpt}</p>
-        </article>
-      );
-    })}
-  </div>
+  <pagefind-summary class="search-status"></pagefind-summary>
+  <pagefind-results class="search-results" show-images="false"></pagefind-results>
 </BaseLayout>
 
 <script>
-  const input = document.querySelector<HTMLInputElement>('#search-input');
-  const status = document.querySelector<HTMLElement>('#search-status');
-  const items = [...document.querySelectorAll<HTMLElement>('[data-search-item]')];
-
-  const filterResults = (query: string) => {
-    let visible = 0;
-    for (const item of items) {
-      const matches = !query || item.dataset.search?.includes(query);
-      item.hidden = !matches;
-      if (matches) visible += 1;
+  // 顶部搜索框通过 GET /search/?q= 跳转而来，这里预填查询词并触发检索。
+  const seedQueryFromUrl = async () => {
+    const term = new URLSearchParams(window.location.search).get('q')?.trim();
+    if (!term) return;
+    await customElements.whenDefined('pagefind-input');
+    const input = document.querySelector<HTMLElement & { inputEl?: HTMLInputElement }>('pagefind-input');
+    const el = input?.inputEl;
+    if (el) {
+      el.value = term;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.focus();
     }
-    if (status) status.textContent = query ? `找到 ${visible} 篇内容` : `共 ${visible} 篇内容`;
   };
-
-  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
-
-  if (input) {
-    input.value = new URLSearchParams(window.location.search).get('q') ?? '';
-    filterResults(input.value.trim().toLowerCase());
-    input.addEventListener('input', () => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        filterResults(input.value.trim().toLowerCase());
-      }, 80);
-    });
-  }
+  seedQueryFromUrl();
 </script>

@@ -1,8 +1,11 @@
 import sitemap from '@astrojs/sitemap';
 import { unified } from '@astrojs/markdown-remark';
 import { defineConfig } from 'astro/config';
+import Compress from 'astro-compress';
 import expressiveCode from 'astro-expressive-code';
 import icon from 'astro-icon';
+import pagefind from 'astro-pagefind';
+import robotsTxt from 'astro-robots-txt';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import remarkDirective from 'remark-directive';
 import {
@@ -62,6 +65,11 @@ export default defineConfig({
       },
     }),
     sitemap(),
+    robotsTxt(),
+    // 放在 pagefind 之前：先压缩产物，再由 pagefind 索引压缩后的 HTML，
+    // 同时避免 pagefind 生成的资源被二次压缩。站点图片已是 webp，跳过图片重压缩。
+    Compress({ Image: false }),
+    pagefind(),
   ],
   markdown: {
     processor: unified({

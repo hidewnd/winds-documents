@@ -1,11 +1,6 @@
-/* HarmonyOS Sans 授权要求保留原始字体文件，不做子集化或格式转换。 */
-@font-face {
-  font-family: 'HarmonyOS Sans SC';
-  src: local('HarmonyOS Sans SC'), url('/fonts/HarmonyOS_Sans_SC_Regular.ttf') format('truetype');
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
+/* HarmonyOS Sans 授权要求保留原始字体文件，不做子集化或格式转换。
+   @font-face 与字体预加载改由 astro-font 的 <AstroFont> 组件生成（见 BaseLayout），
+   仍直接引用 public/fonts 中的原始 TTF，不进行任何转换。 */
 
 /* 颜色取自旧站 Vdoing 主题，组件只引用语义令牌。 */
 :root {
@@ -24,7 +19,7 @@
   --shadow: 0 16px 48px rgba(52, 74, 98, .12);
   --reading-width: 820px;
   --content-width: 1280px;
-  --sans: 'HarmonyOS Sans SC', 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  /* --sans 由 astro-font 根据字体度量生成（含 size-adjust 回退字体）。 */
   --mono: 'Cascadia Code', 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
 }
 
@@ -623,7 +618,29 @@ nav a[aria-current='page']::after {
   transform: translateY(-2px);
 }
 
-/* 搜索与友链 */
+/* 搜索（Pagefind）与友链 */
+/* Pagefind 组件主题：通过其暴露的 --pf-* 变量映射到站点语义令牌。
+   定义在 body 上（而非 :root），以覆盖组件自带 :root 默认值的继承优先级。 */
+body {
+  --pf-font: var(--sans);
+  --pf-text: var(--text);
+  --pf-text-secondary: var(--muted);
+  --pf-text-muted: var(--faint);
+  --pf-background: var(--surface-solid);
+  --pf-border: var(--line);
+  --pf-border-focus: var(--accent);
+  --pf-hover: color-mix(in srgb, var(--accent) 6%, transparent);
+  --pf-mark: color-mix(in srgb, var(--accent) 26%, transparent);
+  --pf-skeleton: var(--code);
+  --pf-skeleton-shine: var(--line);
+  --pf-outline-focus: var(--accent);
+  --pf-input-height: 48px;
+  --pf-input-font-size: 17px;
+  --pf-result-title-font-size: 19px;
+  --pf-result-excerpt-font-size: 13px;
+  --pf-border-radius: 0.875rem;
+  --pf-results-gap: 14px;
+}
 .friend-list, .search-status, .search-results { max-width: var(--reading-width); margin-inline: auto; }
 .friend-list { border-top: 1px solid var(--line); }
 .friend-list > a {
@@ -655,42 +672,10 @@ nav a[aria-current='page']::after {
 }
 .friend-list p { margin: 0; color: var(--muted); font-size: 12px; }
 .search-header { margin-bottom: 42px; }
-.search-header input {
-  width: 100%;
-  margin-top: 30px;
-  padding: 13px 0;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  outline: 0;
-  background: transparent;
-  color: var(--text);
-  font-size: 18px;
-  transition: border-color .2s ease;
-}
-.search-header input:focus { border-color: var(--accent); }
+.search-header pagefind-input { display: block; margin-top: 30px; }
 .search-status { margin-bottom: 36px; color: var(--muted); font-size: 11px; }
-.search-results article {
-  padding: 16px 18px 36px;
-  margin-inline: -18px;
-  margin-bottom: 32px;
-  border-bottom: 1px solid var(--line);
-  border-radius: 16px;
-  transition: background .2s ease;
-}
-.search-results article:hover {
-  background: color-mix(in srgb, var(--accent) 4%, transparent);
-}
-.search-results article > div { display: flex; gap: 12px; color: var(--muted); font-size: 11px; }
-.search-results article > div span { color: var(--accent-soft); font-weight: 700; }
-.search-results h2 {
-  margin: 9px 0;
-  font-size: 19px;
-  transition: color .2s ease;
-}
-.search-results article:hover h2 a {
-  color: var(--accent-soft);
-}
-.search-results p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+/* Pagefind 结果卡片：容器沿用站点阅读宽度，卡片内部由组件主题变量着色。 */
+.search-results pagefind-results { display: block; }
 .not-found { max-width: var(--reading-width); margin: 60px auto; }
 .not-found > p { color: var(--accent-soft); font-weight: 700; }
 .not-found h1 { margin: 12px 0 28px; font-size: 40px; }

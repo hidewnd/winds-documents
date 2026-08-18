@@ -1,4 +1,6 @@
 ---
+import { AstroFont } from 'astro-font';
+import { join } from 'node:path';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import { site } from '../lib/site';
@@ -21,6 +23,7 @@ const {
 } = Astro.props;
 const pageTitle = title ? `${title} · ${site.title}` : site.title;
 const canonical = new URL(Astro.url.pathname, site.url);
+const ogImage = image ? new URL(image, site.url) : undefined;
 ---
 
 <!doctype html>
@@ -38,8 +41,33 @@ const canonical = new URL(Astro.url.pathname, site.url);
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    {image && <meta property="og:image" content={new URL(image, site.url)} />}
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    {ogImage && <meta property="og:image:width" content="1200" />}
+    {ogImage && <meta property="og:image:height" content="630" />}
+    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
     <title>{pageTitle}</title>
+    <AstroFont
+      config={[
+        {
+          name: 'HarmonyOS Sans SC',
+          src: [
+            {
+              path: join(process.cwd(), 'public', 'fonts', 'HarmonyOS_Sans_SC_Regular.ttf'),
+              style: 'normal',
+              weight: '400',
+            },
+          ],
+          preload: true,
+          display: 'swap',
+          fallback: 'sans-serif',
+          fallbackName: 'HarmonyOS Sans SC Fallback',
+          cssVariable: 'sans',
+        },
+      ]}
+    />
     <script is:inline>
       const preferred = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       let theme = preferred;

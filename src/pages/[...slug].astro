@@ -20,6 +20,8 @@ export async function getStaticPaths() {
 const { entry } = Astro.props as { entry: DocumentEntry };
 const { Content, headings } = await render(entry);
 const category = getCategory(entry);
+// 与 src/pages/og/[...slug].ts 生成路径保持一致，作为社交平台预览图。
+const ogImage = `/og/${getEntryUrl(entry).replace(/^\//, '').replace(/\/$/, '')}.png`;
 ---
 
 <ArticleLayout
@@ -27,6 +29,7 @@ const category = getCategory(entry);
   date={entry.data.date}
   category={category}
   description={getExcerpt(entry, 150)}
+  image={ogImage}
   headings={headings.filter(({ depth }) => depth >= 2 && depth <= 3)}
 >
   <Content />

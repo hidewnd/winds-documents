@@ -7,9 +7,12 @@
 - Astro 7 + TypeScript
 - Astro Content Collections
 - 原生 CSS 与少量原生 JavaScript
-- HarmonyOS Sans SC 自托管字体
+- HarmonyOS Sans SC 自托管字体（astro-font 预加载与回退字体）
 - Astro Icon + Tabler 构建期图标
 - Astro Expressive Code + 行号插件
+- astro-compress（HTML/CSS/JS 压缩）
+- astro-pagefind（纯静态全文搜索）
+- astro-og-canvas（文章预览图）+ astro-robots-txt（自动生成 robots.txt）
 - GitHub Actions + GitHub Pages
 
 ## 本地开发
@@ -48,7 +51,14 @@ author:
 
 颜色令牌参考旧 Vdoing 站点的蓝青配色，集中维护在 `src/styles/global.css`。首页背景与头像位于 `public/assets/`，页面图标仅在构建期从 Tabler 图标集中提取，不加载客户端图标脚本。
 
-项目自托管未修改的 `HarmonyOS Sans SC Regular` 字体，完整授权文件位于 `public/fonts/HarmonyOS_Sans_LICENSE.txt`。根据字体授权要求，页脚保留了字体使用声明；字体文件未做子集化或格式转换。
+项目自托管未修改的 `HarmonyOS Sans SC Regular` 字体，完整授权文件位于 `public/fonts/HarmonyOS_Sans_LICENSE.txt`。根据字体授权要求，页脚保留了字体使用声明；字体文件未做子集化或格式转换。字体加载由 `astro-font` 的 `<AstroFont>` 组件统一管理（`@font-face`、`preload` 预加载与基于度量自动生成的回退字体），集中在 `src/layouts/BaseLayout.astro`，不要在全局样式中手写 `@font-face`。
+
+## 搜索、预览图与 SEO
+
+- **搜索**：`astro-pagefind` 在构建后对 `dist` 建立全文索引，`src/pages/search/index.astro` 使用其组件化 UI（`pagefind-input` / `pagefind-summary` / `pagefind-results`）。顶部搜索框提交 `/search/?q=` 后由页面脚本预填查询词。组件配色通过 `global.css` 中映射到语义令牌的 `--pf-*` 变量控制。
+- **文章预览图**：`astro-og-canvas` 在 `src/pages/og/[...slug].ts` 为每篇文章生成 1200×630 的 PNG，`og:image` 与 Twitter 卡片元数据在 `BaseLayout` 统一输出。
+- **robots.txt**：由 `astro-robots-txt` 在构建时自动生成，不再维护 `public/robots.txt`。
+- **压缩**：`astro-compress` 压缩构建产物中的 HTML/CSS/JS（图片已为 webp，跳过图片重压缩）。
 
 Astro 开发工具栏在 `astro.config.mjs` 中以项目级配置关闭，避免本地预览和截图被工具栏遮挡。
 
