@@ -1,5 +1,6 @@
 ---
 import { Icon } from 'astro-icon/components';
+import avatar from '../assets/avatar-v2.webp';
 import { site } from '../lib/site';
 
 const { activePath = Astro.url.pathname } = Astro.props;
@@ -21,7 +22,7 @@ const isActive = (href: string) =>
 <header class="site-header">
   <div class="nav-shell">
     <a class="brand" href="/" aria-label="Hidewnd Docs 首页">
-      <img src="/assets/avatar-v2.webp" width="48" height="48" alt="" />
+      <img src={avatar.src} width="48" height="48" alt="" />
       <span>Hidewnd Docs</span>
     </a>
     <form class="header-search" action="/search/" role="search">

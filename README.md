@@ -49,7 +49,7 @@ author:
 
 ## 主题与字体
 
-颜色令牌参考旧 Vdoing 站点的蓝青配色，集中维护在 `src/styles/global.css`。首页背景与头像位于 `public/assets/`，页面图标仅在构建期从 Tabler 图标集中提取，不加载客户端图标脚本。
+颜色令牌参考旧 Vdoing 站点的蓝青配色，集中维护在 `src/styles/global.css`。首页背景与头像位于 `src/assets/`，通过 Astro 资源管线引用（构建时生成带哈希的文件名以利于缓存更新）；页面图标仅在构建期从 Tabler 图标集中提取，不加载客户端图标脚本。
 
 项目自托管未修改的 `HarmonyOS Sans SC Regular` 字体，完整授权文件位于 `public/fonts/HarmonyOS_Sans_LICENSE.txt`。根据字体授权要求，页脚保留了字体使用声明；字体文件未做子集化或格式转换。字体加载由 `astro-font` 的 `<AstroFont>` 组件统一管理（`@font-face`、`preload` 预加载与基于度量自动生成的回退字体），集中在 `src/layouts/BaseLayout.astro`，不要在全局样式中手写 `@font-face`。
 

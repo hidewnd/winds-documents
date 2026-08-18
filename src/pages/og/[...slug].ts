@@ -17,7 +17,7 @@ export const { getStaticPaths, GET } = await OGImageRoute({
   getImageOptions: (_path, entry) => ({
     title: entry.data.title,
     description: getExcerpt(entry, 120) || undefined,
-    logo: { path: './public/assets/avatar-v2.webp', size: [96] },
+    logo: { path: './src/assets/avatar-v2.webp', size: [96] },
     bgGradient: [
       [17, 168, 205],
       [0, 80, 110],

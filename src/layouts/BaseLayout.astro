@@ -84,6 +84,9 @@ const ogImage = image ? new URL(image, site.url) : undefined;
     <div class="page-canvas">
       <SiteHeader />
       <main id="main-content"><slot /></main>
+      <!-- 悬浮控件不能放在 #main-content 内：其 backdrop-filter 会为 fixed 定位
+           建立包含块，导致返回顶部等按钮相对正文而非视口定位。 -->
+      <slot name="floating" />
       <SiteFooter />
     </div>
   </body>
