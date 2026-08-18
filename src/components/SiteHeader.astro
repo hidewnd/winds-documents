@@ -1,19 +1,42 @@
 ---
 import { Icon } from 'astro-icon/components';
 import avatar from '../assets/avatar-v2.webp';
+import { getCategorySlug, getEntryUrl, getPublishedDocuments } from '../lib/content';
 import { site } from '../lib/site';
 
 const { activePath = Astro.url.pathname } = Astro.props;
 
-const navigation = [
+const posts = await getPublishedDocuments();
+
+type NavItem = {
+  href: string;
+  label: string;
+  grouped?: boolean;
+  category?: string;
+  children?: { href: string; title: string }[];
+};
+
+const baseNavigation: NavItem[] = [
   { href: '/', label: '首页' },
+  // 「文章」为全部归档，未指定 category 时下拉展示所有已发布内容。
   { href: '/articles/', label: '文章', grouped: true },
-  { href: '/category/notes/', label: '笔记', grouped: true },
-  { href: '/category/api/', label: 'API', grouped: true },
-  { href: '/category/vibe-coding/', label: 'Vibe Coding', grouped: true },
-  { href: '/category/jx3/', label: '剑网三', grouped: true },
+  { href: '/category/notes/', label: '笔记', grouped: true, category: 'notes' },
+  { href: '/category/api/', label: 'API', grouped: true, category: 'api' },
+  { href: '/category/vibe-coding/', label: 'Vibe Coding', grouped: true, category: 'vibe-coding' },
+  { href: '/category/jx3/', label: '剑网三', grouped: true, category: 'jx3' },
   { href: '/about/', label: '关于' },
 ];
+
+const navigation: NavItem[] = baseNavigation.map((item) => {
+  if (!item.grouped) return item;
+  const source = item.category
+    ? posts.filter((post) => getCategorySlug(post) === item.category)
+    : posts;
+  return {
+    ...item,
+    children: source.map((post) => ({ href: getEntryUrl(post), title: post.data.title })),
+  };
+});
 
 const isActive = (href: string) =>
   href === '/' ? activePath === '/' : activePath.startsWith(href);
@@ -31,12 +54,21 @@ const isActive = (href: string) =>
     </form>
     <nav aria-label="主导航">
       {navigation.map((item) => (
-        <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
-          {item.label}
-          {item.grouped && <Icon name="tabler:chevron-down" aria-hidden="true" />}
-        </a>
+        <div class:list={['nav-item', { 'has-dropdown': item.children && item.children.length > 0 }]}>
+          <a class="nav-link" href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+            {item.label}
+            {item.grouped && <Icon name="tabler:chevron-down" aria-hidden="true" />}
+          </a>
+          {item.children && item.children.length > 0 && (
+            <div class="nav-dropdown">
+              {item.children.map((child) => (
+                <a href={child.href}>{child.title}</a>
+              ))}
+            </div>
+          )}
+        </div>
       ))}
-      <a class="github-link" href={site.github} rel="me noopener noreferrer" target="_blank">
+      <a class="nav-link github-link" href={site.github} rel="me noopener noreferrer" target="_blank">
         GitHub
         <Icon name="tabler:external-link" aria-hidden="true" />
       </a>
