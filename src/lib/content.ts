@@ -7,7 +7,7 @@ export const categoryOrder = [
   'articles',
   'notes',
   'api',
-  'jx3',
+  'games',
   'vibe-coding',
 ] as const;
 
@@ -27,20 +27,20 @@ export const categories: Record<
     description: '学习过程与部署记录',
     directory: '02.笔记',
   },
+  'vibe-coding': {
+    title: 'Vibe Coding',
+    description: 'AI 编程工具与使用记录',
+    directory: '07.VibeCoding',
+  },
   api: {
     title: 'API',
     description: '接口设计与服务文档',
     directory: '03.API',
   },
-  jx3: {
-    title: '剑网三',
-    description: '剑网三相关资料与攻略',
-    directory: '04.剑网三',
-  },
-  'vibe-coding': {
-    title: 'Vibe Coding',
-    description: 'AI 编程工具与使用记录',
-    directory: '07.VibeCoding',
+  games: {
+    title: '游戏',
+    description: '游戏相关资料与攻略',
+    directory: '04.游戏',
   },
 };
 
@@ -110,4 +110,58 @@ export async function getPublishedDocuments() {
 export async function getRoutableDocuments() {
   // /about/ 由专用页面渲染，其余文章（包括隐藏文章）都保留原 permalink。
   return getCollection('documents', ({ data }) => data.permalink !== '/about/');
+}
+
+// —— 标签 ——
+
+export function getTags(entry: DocumentEntry): string[] {
+  const raw = (entry.data as { tags?: unknown }).tags;
+  if (Array.isArray(raw)) {
+    return raw.map((t) => String(t).trim()).filter(Boolean);
+  }
+  return [];
+}
+
+// 标签进入 URL 前归一化：小写、空白转连字符、剔除符号（保留中英文与数字）。
+export function slugifyTag(tag: string): string {
+  return tag
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\p{Letter}\p{Number}_-]+/gu, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+export function getTagHref(tag: string): string {
+  return `/tag/${slugifyTag(tag)}/`;
+}
+
+export interface TagInfo {
+  tag: string;
+  slug: string;
+  count: number;
+}
+
+// 汇总所有已发布文章的标签：去重并统计各标签下的文章数。
+export async function getAllTags(): Promise<TagInfo[]> {
+  const posts = await getPublishedDocuments();
+  const counts = new Map<string, number>();
+  for (const post of posts) {
+    for (const tag of getTags(post)) {
+      counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    }
+  }
+  return [...counts.entries()]
+    .map(([tag, count]) => ({ tag, slug: slugifyTag(tag), count }))
+    .toSorted((a, b) => b.count - a.count || a.tag.localeCompare(b.tag, 'zh-CN'));
+}
+
+// 按标签 slug 取文章；slug 相同（来自不同原始写法）的标签合并归入同一页。
+export async function getPostsByTagSlug(slug: string): Promise<DocumentEntry[]> {
+  const tags = await getAllTags();
+  const matching = new Set(tags.filter((t) => t.slug === slug).map((t) => t.tag));
+  if (matching.size === 0) return [];
+  const posts = await getPublishedDocuments();
+  return posts.filter((post) => getTags(post).some((tag) => matching.has(tag)));
 }

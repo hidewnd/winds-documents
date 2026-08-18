@@ -20,6 +20,8 @@ const documents = defineCollection({
       .optional(),
     sidebar: z.boolean().optional(),
     article: z.boolean().optional(),
+    // 标签由各篇文章自由配置，使用 YAML 列表格式。
+    tags: z.array(z.string()).optional().default([]),
   }),
 });
 

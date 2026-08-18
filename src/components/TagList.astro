@@ -1,0 +1,20 @@
+---
+import { getTagHref } from '../lib/content';
+
+interface Props {
+  tags: string[];
+  small?: boolean;
+}
+
+const { tags, small = false } = Astro.props;
+---
+
+{tags.length > 0 && (
+  <ul class:list={['tag-list', { 'tag-list--small': small }]}>
+    {tags.map((tag) => (
+      <li>
+        <a href={getTagHref(tag)} aria-label={`标签：${tag}`}>#{tag}</a>
+      </li>
+    ))}
+  </ul>
+)}

@@ -2,6 +2,7 @@
 import { Icon } from 'astro-icon/components';
 import BaseLayout from './BaseLayout.astro';
 import { formatDate } from '../lib/content';
+import TagList from '../components/TagList.astro';
 
 interface ArticleHeading {
   depth: number;
@@ -15,10 +16,11 @@ interface Props {
   category: { title: string; href: string };
   description?: string;
   image?: string;
+  tags?: string[];
   headings?: ArticleHeading[];
 }
 
-const { title, date, category, description, image, headings = [] } = Astro.props;
+const { title, date, category, description, image, tags = [], headings = [] } = Astro.props;
 ---
 
 <BaseLayout title={title} description={description} image={image}>
@@ -28,6 +30,7 @@ const { title, date, category, description, image, headings = [] } = Astro.props
         <a href={category.href}>{category.title}</a>
         <h1>{title}</h1>
         <time datetime={date.toISOString()}>{formatDate(date)}</time>
+        <TagList tags={tags} />
       </header>
       <div class="prose"><slot /></div>
     </article>

@@ -5,7 +5,9 @@ import {
   getCategory,
   getEntryUrl,
   getExcerpt,
+  getTags,
 } from '../lib/content';
+import TagList from './TagList.astro';
 
 interface Props {
   entries: DocumentEntry[];
@@ -27,6 +29,7 @@ const { entries, compact = false } = Astro.props;
           <div class="article-meta">
             <a href={category.href}>{category.title}</a>
             <time datetime={entry.data.date.toISOString()}>{formatDate(entry.data.date)}</time>
+            <TagList tags={getTags(entry)} small />
           </div>
           <h2><a href={getEntryUrl(entry)}>{entry.data.title}</a></h2>
           {!compact && <p>{getExcerpt(entry)}</p>}

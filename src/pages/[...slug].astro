@@ -6,6 +6,7 @@ import {
   getEntryUrl,
   getExcerpt,
   getRoutableDocuments,
+  getTags,
   type DocumentEntry,
 } from '../lib/content';
 
@@ -30,6 +31,7 @@ const ogImage = `/og/${getEntryUrl(entry).replace(/^\//, '').replace(/\/$/, '')}
   category={category}
   description={getExcerpt(entry, 150)}
   image={ogImage}
+  tags={getTags(entry)}
   headings={headings.filter(({ depth }) => depth >= 2 && depth <= 3)}
 >
   <Content />

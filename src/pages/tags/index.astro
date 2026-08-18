@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getAllTags, getTagHref } from '../../lib/content';
+
+const tags = await getAllTags();
+---
+
+<BaseLayout title="标签" description="按标签浏览 Hidewnd Docs 的文章。">
+  <header class="page-header">
+    <p>{tags.length} 个标签</p>
+    <h1>标签</h1>
+    <span>文章按标签聚合，并统计各标签下的文章数。</span>
+  </header>
+
+  {tags.length > 0 ? (
+    <ul class="tag-cloud">
+      {tags.map((t) => (
+        <li>
+          <a href={getTagHref(t.tag)}>
+            <span class="tag-cloud-name">#{t.tag}</span>
+            <span class="tag-cloud-count">{t.count}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p class="tag-empty">暂无标签。</p>
+  )}
+</BaseLayout>

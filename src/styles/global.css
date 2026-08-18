@@ -460,7 +460,7 @@ nav {
 .article-row:hover .article-index {
   color: var(--accent-soft);
 }
-.article-meta { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 11px; }
+.article-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; color: var(--muted); font-size: 11px; }
 .article-meta a { color: var(--accent-soft); font-weight: 700; }
 .article-meta time::before { content: '·'; margin-right: 12px; color: var(--faint); }
 .article-row h2 {
@@ -488,6 +488,76 @@ nav {
 .article-row:hover .read-link {
   gap: 8px;
 }
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+}
+.tag-list li { margin: 0; }
+.tag-list a {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  color: var(--accent-soft);
+  font-size: 11px;
+  font-weight: 600;
+  transition: background .2s ease, transform .2s ease;
+}
+.tag-list a:hover {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  transform: translateY(-1px);
+}
+.tag-list--small { margin: 0; }
+.tag-list--small a { padding: 2px 8px; font-size: 10px; }
+
+.post-header .tag-list {
+  justify-content: center;
+  margin-top: 18px;
+  margin-bottom: 0;
+}
+
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: var(--reading-width);
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+.tag-cloud li { margin: 0; }
+.tag-cloud a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+  transition: border-color .2s ease, transform .2s ease, background .2s ease;
+}
+.tag-cloud a:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  transform: translateY(-1px);
+}
+.tag-cloud-name { color: var(--accent-soft); font-size: 13px; font-weight: 700; }
+.tag-cloud-count {
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  text-align: center;
+}
+.tag-empty { margin: 0; color: var(--muted); font-size: 14px; }
 
 .article-layout {
   max-width: 1080px;
