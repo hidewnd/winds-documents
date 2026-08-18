@@ -49,9 +49,16 @@ const posts = await getPublishedDocuments();
     if (status) status.textContent = query ? `找到 ${visible} 篇内容` : `共 ${visible} 篇内容`;
   };
 
+  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+
   if (input) {
     input.value = new URLSearchParams(window.location.search).get('q') ?? '';
     filterResults(input.value.trim().toLowerCase());
-    input.addEventListener('input', () => filterResults(input.value.trim().toLowerCase()));
+    input.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        filterResults(input.value.trim().toLowerCase());
+      }, 80);
+    });
   }
 </script>
