@@ -1,0 +1,62 @@
+---
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { site } from '../lib/site';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  noindex?: boolean;
+  home?: boolean;
+}
+
+const {
+  title,
+  description = site.description,
+  image,
+  noindex = false,
+  home = false,
+} = Astro.props;
+const pageTitle = title ? `${title} · ${site.title}` : site.title;
+const canonical = new URL(Astro.url.pathname, site.url);
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <link rel="icon" href="data:," />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" type="application/rss+xml" title={site.title} href="/rss.xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {image && <meta property="og:image" content={new URL(image, site.url)} />}
+    <title>{pageTitle}</title>
+    <script is:inline>
+      const preferred = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      let theme = preferred;
+      try {
+        theme = localStorage.getItem('theme') ?? preferred;
+      } catch {
+        // 严格隐私模式可能禁用存储，此时只使用系统主题且不影响页面渲染。
+      }
+      document.documentElement.dataset.theme = theme;
+    </script>
+  </head>
+  <body class:list={{ 'is-home': home }}>
+    <a class="skip-link" href="#main-content">跳到正文</a>
+    <div class="page-canvas">
+      <SiteHeader />
+      <main id="main-content"><slot /></main>
+      <SiteFooter />
+    </div>
+  </body>
+</html>

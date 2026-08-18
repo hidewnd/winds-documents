@@ -1,0 +1,33 @@
+---
+import { Icon } from 'astro-icon/components';
+import { site } from '../lib/site';
+
+const links = [
+  { href: site.github, label: 'GitHub', icon: 'tabler:brand-github', external: true },
+  { href: 'https://gitee.com/hidewnd/', label: 'Gitee', icon: 'tabler:brand-git', external: true },
+  { href: '/rss.xml', label: 'RSS', icon: 'tabler:rss' },
+  { href: '/friends/', label: '友链', icon: 'tabler:bookmarks' },
+];
+---
+
+<footer class="site-footer">
+  <div class="footer-links" aria-label="站点链接">
+    {links.map((link) => (
+      <a
+        href={link.href}
+        aria-label={link.label}
+        title={link.label}
+        target={link.external ? '_blank' : undefined}
+        rel={link.external ? 'noopener noreferrer' : undefined}
+      >
+        <Icon name={link.icon} aria-hidden="true" />
+      </a>
+    ))}
+  </div>
+  <p>
+    <span>Astro · Vdoing 配色</span>
+    <span class="footer-divider" aria-hidden="true">|</span>
+    <span>Copyright © 2024–{new Date().getFullYear()} {site.author}</span>
+  </p>
+  <small>本站使用 HarmonyOS Sans 字体</small>
+</footer>

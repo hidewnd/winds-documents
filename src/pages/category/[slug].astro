@@ -1,0 +1,28 @@
+---
+import ArticleList from '../../components/ArticleList.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import {
+  categories,
+  categoryOrder,
+  getCategorySlug,
+  getPublishedDocuments,
+  type CategorySlug,
+} from '../../lib/content';
+
+export function getStaticPaths() {
+  return categoryOrder.map((slug) => ({ params: { slug }, props: { slug } }));
+}
+
+const { slug } = Astro.props as { slug: CategorySlug };
+const category = categories[slug];
+const posts = (await getPublishedDocuments()).filter((entry) => getCategorySlug(entry) === slug);
+---
+
+<BaseLayout title={category.title} description={category.description}>
+  <header class="page-header">
+    <p>{posts.length} 篇内容</p>
+    <h1>{category.title}</h1>
+    <span>{category.description}</span>
+  </header>
+  <ArticleList entries={posts} />
+</BaseLayout>

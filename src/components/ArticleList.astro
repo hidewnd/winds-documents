@@ -1,0 +1,38 @@
+---
+import type { DocumentEntry } from '../lib/content';
+import {
+  formatDate,
+  getCategory,
+  getEntryUrl,
+  getExcerpt,
+} from '../lib/content';
+
+interface Props {
+  entries: DocumentEntry[];
+  compact?: boolean;
+}
+
+const { entries, compact = false } = Astro.props;
+---
+
+<div class:list={["article-list", { compact }]}>
+  {entries.map((entry, index) => {
+    const category = getCategory(entry);
+    return (
+      <article class="article-row">
+        <div class="article-index" aria-hidden="true">
+          {String(index + 1).padStart(2, '0')}
+        </div>
+        <div>
+          <div class="article-meta">
+            <a href={category.href}>{category.title}</a>
+            <time datetime={entry.data.date.toISOString()}>{formatDate(entry.data.date)}</time>
+          </div>
+          <h2><a href={getEntryUrl(entry)}>{entry.data.title}</a></h2>
+          {!compact && <p>{getExcerpt(entry)}</p>}
+          <a class="read-link" href={getEntryUrl(entry)}>阅读全文</a>
+        </div>
+      </article>
+    );
+  })}
+</div>

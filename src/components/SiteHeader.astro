@@ -1,0 +1,70 @@
+---
+import { Icon } from 'astro-icon/components';
+import { site } from '../lib/site';
+
+const { activePath = Astro.url.pathname } = Astro.props;
+
+const navigation = [
+  { href: '/', label: '首页' },
+  { href: '/articles/', label: '文章', grouped: true },
+  { href: '/category/notes/', label: '笔记', grouped: true },
+  { href: '/category/api/', label: 'API', grouped: true },
+  { href: '/category/vibe-coding/', label: 'Vibe Coding', grouped: true },
+  { href: '/category/jx3/', label: '剑网三', grouped: true },
+  { href: '/about/', label: '关于' },
+];
+
+const isActive = (href: string) =>
+  href === '/' ? activePath === '/' : activePath.startsWith(href);
+---
+
+<header class="site-header">
+  <div class="nav-shell">
+    <a class="brand" href="/" aria-label="Hidewnd Docs 首页">
+      <img src="/assets/avatar-v2.webp" width="48" height="48" alt="" />
+      <span>Hidewnd Docs</span>
+    </a>
+    <form class="header-search" action="/search/" role="search">
+      <Icon name="tabler:search" aria-hidden="true" />
+      <input name="q" type="search" placeholder="搜索..." aria-label="搜索文章" />
+    </form>
+    <nav aria-label="主导航">
+      {navigation.map((item) => (
+        <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+          {item.label}
+          {item.grouped && <Icon name="tabler:chevron-down" aria-hidden="true" />}
+        </a>
+      ))}
+      <a class="github-link" href={site.github} rel="me noopener noreferrer" target="_blank">
+        GitHub
+        <Icon name="tabler:external-link" aria-hidden="true" />
+      </a>
+    </nav>
+  </div>
+</header>
+
+<button id="theme-toggle" class="theme-fab" type="button" aria-label="切换明暗主题">
+  <Icon class="theme-icon-light" name="tabler:moon-stars" aria-hidden="true" />
+  <Icon class="theme-icon-dark" name="tabler:sun" aria-hidden="true" />
+</button>
+
+<script is:inline>
+  const toggle = document.querySelector('#theme-toggle');
+  const syncThemeControl = (theme) => {
+    const isDark = theme === 'dark';
+    toggle?.setAttribute('aria-pressed', String(isDark));
+    toggle?.setAttribute('aria-label', isDark ? '切换为浅色主题' : '切换为深色主题');
+  };
+
+  syncThemeControl(document.documentElement.dataset.theme);
+  toggle?.addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    syncThemeControl(next);
+    try {
+      localStorage.setItem('theme', next);
+    } catch {
+      // 存储不可用时仍完成本页切换，只是不跨页面记忆主题。
+    }
+  });
+</script>

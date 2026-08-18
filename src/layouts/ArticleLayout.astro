@@ -1,0 +1,87 @@
+---
+import { Icon } from 'astro-icon/components';
+import BaseLayout from './BaseLayout.astro';
+import { formatDate } from '../lib/content';
+
+interface ArticleHeading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  title: string;
+  date: Date;
+  category: { title: string; href: string };
+  description?: string;
+  headings?: ArticleHeading[];
+}
+
+const { title, date, category, description, headings = [] } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="article-layout">
+    <article class="post-shell">
+      <header class="post-header">
+        <a href={category.href}>{category.title}</a>
+        <h1>{title}</h1>
+        <time datetime={date.toISOString()}>{formatDate(date)}</time>
+      </header>
+      <div class="prose"><slot /></div>
+    </article>
+
+    {headings.length > 0 && (
+      <aside class="article-toc" aria-label="文章大纲">
+        <h2 class="toc-title"><Icon name="tabler:list-tree" aria-hidden="true" />文章大纲</h2>
+        <ol>
+          {headings.map((heading) => (
+            <li class:list={[`toc-depth-${heading.depth}`]}>
+              <a href={`#${heading.slug}`} title={heading.text}>{heading.text}</a>
+            </li>
+          ))}
+        </ol>
+      </aside>
+    )}
+  </div>
+
+  <button id="back-to-top" class="back-to-top" type="button" data-visible="false" aria-label="返回顶部">
+    <Icon name="tabler:arrow-up" aria-hidden="true" />
+  </button>
+</BaseLayout>
+
+<script is:inline>
+  const backToTop = document.querySelector('#back-to-top');
+  const syncBackToTop = () => {
+    backToTop?.setAttribute('data-visible', String(window.scrollY > 520));
+  };
+  backToTop?.addEventListener('click', () => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+  });
+
+  const tocLinks = [...document.querySelectorAll('.article-toc a')];
+  const headingLinks = new Map(tocLinks.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+  const articleHeadings = [...document.querySelectorAll('.prose h2[id], .prose h3[id]')];
+  const syncOutline = () => {
+    const current = articleHeadings
+      .filter((heading) => heading.getBoundingClientRect().top <= 180)
+      .at(-1) ?? articleHeadings[0];
+    tocLinks.forEach((link) => link.removeAttribute('aria-current'));
+    if (current?.id) headingLinks.get(current.id)?.setAttribute('aria-current', 'location');
+  };
+
+  let scrollUpdateQueued = false;
+  const syncArticleScrollState = () => {
+    if (scrollUpdateQueued) return;
+    scrollUpdateQueued = true;
+    window.requestAnimationFrame(() => {
+      scrollUpdateQueued = false;
+      syncBackToTop();
+      syncOutline();
+    });
+  };
+  syncBackToTop();
+  syncOutline();
+  window.addEventListener('scroll', syncArticleScrollState, { passive: true });
+</script>

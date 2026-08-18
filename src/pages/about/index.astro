@@ -1,0 +1,20 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const entries = await getCollection('documents', ({ data }) => data.permalink === '/about/');
+const entry = entries[0];
+if (!entry) throw new Error('未找到 documents/06.关于/01.关于.md');
+const { Content } = await render(entry);
+---
+
+<BaseLayout title="关于" description="关于 Hidewnd 与 Hidewnd Docs。">
+  <article class="post-shell about-page">
+    <header class="page-header">
+      <p>ABOUT</p>
+      <h1>关于</h1>
+      <span>这个小站，以及写下这些内容的人。</span>
+    </header>
+    <div class="prose"><Content /></div>
+  </article>
+</BaseLayout>

@@ -1,0 +1,33 @@
+---
+import { render } from 'astro:content';
+import ArticleLayout from '../layouts/ArticleLayout.astro';
+import {
+  getCategory,
+  getEntryUrl,
+  getExcerpt,
+  getRoutableDocuments,
+  type DocumentEntry,
+} from '../lib/content';
+
+export async function getStaticPaths() {
+  const entries = await getRoutableDocuments();
+  return entries.map((entry) => ({
+    params: { slug: getEntryUrl(entry).replace(/^\//, '').replace(/\/$/, '') },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props as { entry: DocumentEntry };
+const { Content, headings } = await render(entry);
+const category = getCategory(entry);
+---
+
+<ArticleLayout
+  title={entry.data.title}
+  date={entry.data.date}
+  category={category}
+  description={getExcerpt(entry, 150)}
+  headings={headings.filter(({ depth }) => depth >= 2 && depth <= 3)}
+>
+  <Content />
+</ArticleLayout>

@@ -1,0 +1,16 @@
+---
+import ArticleList from '../../components/ArticleList.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPublishedDocuments } from '../../lib/content';
+
+const posts = await getPublishedDocuments();
+---
+
+<BaseLayout title="全部文章" description="Hidewnd Docs 的全部文章与笔记。">
+  <header class="page-header">
+    <p>{posts.length} 篇归档</p>
+    <h1>全部文章</h1>
+    <span>按更新时间倒序排列。</span>
+  </header>
+  <ArticleList entries={posts} />
+</BaseLayout>
