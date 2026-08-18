@@ -1,0 +1,68 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import {
+  formatDate,
+  getCategory,
+  getEntryUrl,
+  getPublishedDocuments,
+} from '../../lib/content';
+
+const posts = await getPublishedDocuments();
+
+// 已按日期倒序，这里按年份分组，组内保持倒序。
+const years: { year: number; posts: typeof posts }[] = [];
+for (const post of posts) {
+  const year = post.data.date.getFullYear();
+  const last = years.at(-1);
+  if (last && last.year === year) {
+    last.posts.push(post);
+  } else {
+    years.push({ year, posts: [post] });
+  }
+}
+---
+
+<BaseLayout title="归档" description="按时间倒序浏览 Hidewnd Docs 的全部文章。">
+  <header class="page-header">
+    <p>{posts.length} 篇归档 · {years.length} 年</p>
+    <h1>归档</h1>
+    <span>全部文章按时间倒序，沿时间轴排列。</span>
+  </header>
+
+  {posts.length > 0 ? (
+    <div class="timeline">
+      {years.map(({ year, posts: group }) => (
+        <section class="timeline-year">
+          <h2 class="timeline-year-title">
+            <span class="timeline-year-dot" aria-hidden="true"></span>
+            <span>{year}</span>
+            <small>{group.length} 篇</small>
+          </h2>
+          <ol class="timeline-list">
+            {group.map((post) => {
+              const category = getCategory(post);
+              return (
+                <li class="timeline-item">
+                  <span class="timeline-node" aria-hidden="true"></span>
+                  <div class="timeline-card">
+                    <div class="timeline-card-top">
+                      <time datetime={post.data.date.toISOString()}>
+                        {formatDate(post.data.date)}
+                      </time>
+                      <a href={category.href}>{category.title}</a>
+                    </div>
+                    <h3 class="timeline-title">
+                      <a href={getEntryUrl(post)}>{post.data.title}</a>
+                    </h3>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      ))}
+    </div>
+  ) : (
+    <p class="tag-empty">暂无归档文章。</p>
+  )}
+</BaseLayout>

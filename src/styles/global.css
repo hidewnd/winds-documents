@@ -407,12 +407,14 @@ nav {
   line-height: 1.2;
   letter-spacing: .12em;
   text-shadow: 0 8px 28px rgba(0, 64, 80, .08);
+  opacity: .6;
 }
 .home-hero p {
   margin: 24px 0 0;
   color: var(--muted);
   font-size: clamp(17px, 1.6vw, 22px);
   letter-spacing: .12em;
+  opacity: .4;
 }
 
 /* 文章列表与页面标题 */
@@ -558,6 +560,125 @@ nav {
   text-align: center;
 }
 .tag-empty { margin: 0; color: var(--muted); font-size: 14px; }
+
+/* 归档时间轴：竖向主线 + 年份节点 + 文章卡片，青色令牌贯穿始终。 */
+.timeline {
+  position: relative;
+  max-width: var(--reading-width);
+  margin-inline: auto;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 27px;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--accent) 55%, transparent) 8%,
+    var(--line) 18%,
+    var(--line) calc(100% - 18%),
+    transparent
+  );
+  border-radius: 2px;
+}
+.timeline-year { margin-bottom: 52px; }
+.timeline-year:last-child { margin-bottom: 0; }
+.timeline-year-title {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 28px;
+  padding-left: 56px;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+.timeline-year-title > span:nth-child(2) { line-height: 1; }
+.timeline-year-title small {
+  color: var(--muted);
+  font-size: 12px;
+  font-family: var(--mono);
+  font-weight: 500;
+}
+.timeline-year-dot {
+  position: absolute;
+  left: 22px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 15%, transparent),
+              0 4px 12px color-mix(in srgb, var(--accent) 40%, transparent);
+  translate: 0 -50%;
+}
+.timeline-list { margin: 0; padding: 0; list-style: none; }
+.timeline-item {
+  position: relative;
+  padding-left: 56px;
+  margin-bottom: 20px;
+}
+.timeline-item:last-child { margin-bottom: 0; }
+.timeline-node {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: var(--surface-solid);
+  transition: background .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.timeline-card {
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--surface-solid) 62%, transparent);
+  transition: border-color .2s ease, background .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+.timeline-card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.timeline-card-top time {
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.timeline-card-top a {
+  color: var(--accent-soft);
+  font-size: 11px;
+  font-weight: 700;
+}
+.timeline-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -.01em;
+  transition: color .2s ease;
+}
+.timeline-title a { transition: color .2s ease; }
+.timeline-item:hover .timeline-node {
+  background: var(--accent);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 20%, transparent);
+  transform: scale(1.12);
+}
+.timeline-item:hover .timeline-card {
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--line));
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface-solid));
+  box-shadow: 0 10px 28px rgba(52, 74, 98, .1);
+  transform: translateY(-2px);
+}
+.timeline-item:hover .timeline-title a { color: var(--accent-soft); }
+.timeline-item:hover .timeline-card-top a { text-decoration: underline; text-underline-offset: 3px; }
 
 .article-layout {
   max-width: 1080px;
@@ -927,6 +1048,12 @@ body {
   .post-header { margin-bottom: 42px; text-align: left; }
   .post-header h1 { font-size: 32px; }
   .article-row { grid-template-columns: 26px minmax(0, 1fr); gap: 12px; margin-inline: -10px; padding: 12px 10px 32px; }
+  .timeline::before { left: 21px; }
+  .timeline-year-title { padding-left: 46px; font-size: 24px; }
+  .timeline-year-dot { left: 17px; }
+  .timeline-item { padding-left: 46px; }
+  .timeline-node { left: 17px; }
+  .timeline-title { font-size: 17px; }
   .prose { font-size: 14px; }
   .prose .expressive-code { margin-inline: -4px; }
   .friend-list > a { grid-template-columns: 26px 1fr; }
