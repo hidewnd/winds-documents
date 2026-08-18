@@ -13,6 +13,8 @@ export const backgroundImages: string[] = [
   'https://cdn.jsdmirror.com/gh/xugaoyi/image_store/blog/20200507175828.jpeg',
   backgroundLocal.src,
 ];
+//首页轮播时间（秒）
+export const backgroudRotationTime: number = 60
 
 // 友链是站点运营数据，集中维护可避免散落在多个页面组件中。
 export const friendLinks = [

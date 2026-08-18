@@ -3,7 +3,7 @@ import { AstroFont } from 'astro-font';
 import { join } from 'node:path';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
-import { backgroundImages, iconLibraryStyles, site } from '../lib/site';
+import { backgroundImages, backgroudRotationTime, iconLibraryStyles, site } from '../lib/site';
 import '../styles/global.css';
 
 interface Props {
@@ -81,7 +81,7 @@ const ogImage = image ? new URL(image, site.url) : undefined;
     </script>
   </head>
   <body class:list={{ 'is-home': home }}>
-    <div class="background-carousel" aria-hidden="true">
+    <div class="background-carousel" aria-hidden="true" data-rotation-time={backgroudRotationTime}>
       {backgroundImages.map((src, index) => (
         <div
           class="background-slide"
@@ -102,6 +102,8 @@ const ogImage = image ? new URL(image, site.url) : undefined;
     <script>
       // 背景图轮播：按固定间隔交叉淡入切换；尊重系统「减少动态」偏好。
       const slides = Array.from(document.querySelectorAll<HTMLElement>('.background-slide'));
+      const carousel = document.querySelector<HTMLElement>('.background-carousel');
+      const rotationTime = Number(carousel?.dataset.rotationTime ?? 10) * 1000;
       if (slides.length > 1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         let current = 0;
         window.setInterval(() => {
@@ -109,7 +111,7 @@ const ogImage = image ? new URL(image, site.url) : undefined;
           slides[current].dataset.active = 'false';
           slides[next].dataset.active = 'true';
           current = next;
-        }, 8000);
+        }, rotationTime);
       }
     </script>
   </body>
