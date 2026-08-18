@@ -46,6 +46,16 @@ const isActive = (href: string) =>
 
 <header class="site-header">
   <div class="nav-shell">
+    <button
+      id="nav-toggle"
+      class="header-icon-btn menu-btn"
+      type="button"
+      aria-label="打开菜单"
+      aria-controls="site-nav"
+      aria-expanded="false"
+    >
+      <Icon name="tabler:menu" aria-hidden="true" />
+    </button>
     <a class="brand" href="/" aria-label="Hidewnd Docs 首页">
       <img src={avatar.src} width="48" height="48" alt="" />
       <span>Hidewnd Docs</span>
@@ -54,7 +64,17 @@ const isActive = (href: string) =>
       <Icon name="tabler:search" aria-hidden="true" />
       <input name="q" type="search" placeholder="搜索..." aria-label="搜索文章" />
     </form>
-    <nav aria-label="主导航">
+    <button
+      id="search-toggle"
+      class="header-icon-btn search-btn"
+      type="button"
+      aria-label="打开搜索"
+      aria-controls="search-overlay"
+      aria-expanded="false"
+    >
+      <Icon name="tabler:search" aria-hidden="true" />
+    </button>
+    <nav class="desktop-nav" aria-label="主导航">
       {navigation.map((item) => (
         <div class:list={['nav-item', { 'has-dropdown': item.children && item.children.length > 0 }]}>
           <a class="nav-link" href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
@@ -78,6 +98,38 @@ const isActive = (href: string) =>
   </div>
 </header>
 
+<!-- 移动端左侧抽屉。必须置于 .site-header 之外：header 的 backdrop-filter
+     会为固定定位子元素建立包含块，使抽屉相对 header 而非视口定位。
+     这里只列一级菜单，避免与桌面导航重复展开文章下拉。 -->
+<aside id="site-nav" class="site-drawer" aria-label="主导航">
+  <nav>
+    {navigation.map((item) => (
+      <a class="drawer-link" href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+        {item.label}
+      </a>
+    ))}
+    <a class="drawer-link" href={site.github} rel="me noopener noreferrer" target="_blank">
+      GitHub
+    </a>
+  </nav>
+</aside>
+
+<!-- 移动端左侧抽屉的遮罩 -->
+<div id="nav-backdrop" class="overlay-backdrop"></div>
+
+<!-- 移动端搜索遮罩：点击搜索按钮后模糊展开整行搜索栏 -->
+<div id="search-overlay" class="search-overlay" role="dialog" aria-modal="true" aria-label="搜索文章">
+  <div class="search-overlay-panel">
+    <form class="search-overlay-form" action="/search/" role="search">
+      <Icon name="tabler:search" aria-hidden="true" />
+      <input id="mobile-search-input" name="q" type="search" placeholder="输入关键词搜索..." aria-label="搜索文章" autocomplete="off" />
+      <button id="search-close" class="search-overlay-close" type="button" aria-label="关闭搜索">
+        <Icon name="tabler:x" aria-hidden="true" />
+      </button>
+    </form>
+  </div>
+</div>
+
 <button id="theme-toggle" class="theme-fab" type="button" aria-label="切换明暗主题">
   <Icon class="theme-icon-light" name="tabler:moon-stars" aria-hidden="true" />
   <Icon class="theme-icon-dark" name="tabler:sun" aria-hidden="true" />
@@ -100,6 +152,86 @@ const isActive = (href: string) =>
       localStorage.setItem('theme', next);
     } catch {
       // 存储不可用时仍完成本页切换，只是不跨页面记忆主题。
+    }
+  });
+</script>
+
+<script is:inline>
+  // 移动端交互：左侧菜单抽屉与搜索遮罩。
+  const drawer = document.querySelector('#site-nav');
+  const navToggle = document.querySelector('#nav-toggle');
+  const navBackdrop = document.querySelector('#nav-backdrop');
+  const searchOverlay = document.querySelector('#search-overlay');
+  const searchToggle = document.querySelector('#search-toggle');
+  const searchClose = document.querySelector('#search-close');
+  const searchInput = document.querySelector('#mobile-search-input');
+
+  const lockScroll = (locked) => document.body.classList.toggle('scroll-locked', locked);
+
+  const closeDrawer = () => {
+    drawer?.classList.remove('is-open');
+    navBackdrop?.classList.remove('is-open');
+    navToggle?.setAttribute('aria-expanded', 'false');
+    navToggle?.setAttribute('aria-label', '打开菜单');
+    lockScroll(false);
+  };
+  const openDrawer = () => {
+    closeSearch();
+    drawer?.classList.add('is-open');
+    navBackdrop?.classList.add('is-open');
+    navToggle?.setAttribute('aria-expanded', 'true');
+    navToggle?.setAttribute('aria-label', '关闭菜单');
+    lockScroll(true);
+  };
+
+  const closeSearch = () => {
+    searchOverlay?.classList.remove('is-open');
+    searchToggle?.setAttribute('aria-expanded', 'false');
+    searchToggle?.setAttribute('aria-label', '打开搜索');
+    lockScroll(false);
+  };
+  const openSearch = () => {
+    closeDrawer();
+    searchOverlay?.classList.add('is-open');
+    searchToggle?.setAttribute('aria-expanded', 'true');
+    searchToggle?.setAttribute('aria-label', '关闭搜索');
+    lockScroll(true);
+    searchInput?.focus();
+  };
+
+  const isDesktop = () => window.matchMedia('(min-width: 621px)').matches;
+
+  navToggle?.addEventListener('click', () => {
+    if (isDesktop()) return;
+    drawer?.classList.contains('is-open') ? closeDrawer() : openDrawer();
+  });
+  searchToggle?.addEventListener('click', () => {
+    if (isDesktop()) return;
+    searchOverlay?.classList.contains('is-open') ? closeSearch() : openSearch();
+  });
+  navBackdrop?.addEventListener('click', closeDrawer);
+  searchOverlay?.addEventListener('click', (e) => {
+    if (e.target === searchOverlay) closeSearch();
+  });
+  searchClose?.addEventListener('click', closeSearch);
+
+  // 抽屉内的链接点击后收起抽屉，再跳转。
+  drawer?.addEventListener('click', (e) => {
+    if (e.target instanceof HTMLAnchorElement) closeDrawer();
+  });
+
+  // Esc 关闭菜单与搜索。
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (searchOverlay?.classList.contains('is-open')) closeSearch();
+    else if (drawer?.classList.contains('is-open')) closeDrawer();
+  });
+
+  // 从移动端旋转/放大到桌面时，重置可能的残留状态。
+  window.addEventListener('resize', () => {
+    if (isDesktop()) {
+      closeDrawer();
+      closeSearch();
     }
   });
 </script>

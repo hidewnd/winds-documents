@@ -61,6 +61,8 @@ export default defineConfig({
           'bookmarks',
           'arrow-up',
           'list-tree',
+          'menu',
+          'x',
         ],
       },
     }),
