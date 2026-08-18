@@ -24,7 +24,9 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          # 与本地环境一致: lockfile 由 npm 11 生成, 若用 Node 22(自带 npm 10)
+          # 会因无法解析 wasm 可选依赖 @emnapi/* 而失败。
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
