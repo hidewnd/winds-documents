@@ -1,5 +1,12 @@
 import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers';
+import { pluginFramesTexts } from '@expressive-code/plugin-frames';
 import { defineEcConfig } from 'astro-expressive-code';
+
+pluginFramesTexts.overrideTexts(undefined, {
+  terminalWindowFallbackTitle: '代码窗口',
+  copyButtonTooltip: '复制到剪贴板',
+  copyButtonCopied: '已复制！',
+});
 
 export default defineEcConfig({
   themes: ['github-dark', 'github-light'],
@@ -7,8 +14,12 @@ export default defineEcConfig({
   // 站点使用 data-theme="light|dark"，让代码主题跟随同一状态源。
   themeCssSelector: (theme) => `[data-theme='${theme.type}']`,
   defaultLocale: 'zh-CN',
+  frames: {
+    removeCommentsWhenCopyingTerminalFrames: false,
+  },
   plugins: [pluginLineNumbers()],
   defaultProps: {
+    frame: 'terminal',
     showLineNumbers: true,
     wrap: false,
   },
