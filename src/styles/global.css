@@ -848,6 +848,38 @@ nav {
   font-family: var(--mono);
   font-size: .88em;
 }
+.prose .katex { font-size: 1.1em; overflow-wrap: normal; }
+.prose .katex-display {
+  max-width: 100%;
+  margin: 1.5em 0;
+  padding-block: .3em;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.prose .katex-display > .katex { width: max-content; min-width: 100%; }
+.prose pre.mermaid {
+  max-width: 100%;
+  margin: 2.2rem 0;
+  padding: 1.25rem;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: .875rem;
+  background: var(--surface-solid);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: .875rem;
+  line-height: 1.6;
+  white-space: pre;
+  overflow-wrap: normal;
+}
+.prose pre.mermaid[data-rendered] { white-space: normal; }
+.prose .mermaid > svg { display: block; height: auto; margin-inline: auto; }
+/* SVG 内的 HTML 标签由 Mermaid 排版，不继承正文段落的留白。 */
+.prose .mermaid p { margin: 0; }
+.prose .mermaid-error { color: #b42318; white-space: normal; }
+.prose .katex-error { color: #b42318 !important; }
+:root[data-theme='dark'] .prose .mermaid-error,
+:root[data-theme='dark'] .prose .katex-error { color: #ffb4ab !important; }
 .prose .expressive-code { margin: 2.2rem 0; scroll-margin-top: 90px; }
 .prose .expressive-code .copy button {
   width: 2rem !important;

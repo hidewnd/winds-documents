@@ -3,6 +3,7 @@ import { Icon } from 'astro-icon/components';
 import BaseLayout from './BaseLayout.astro';
 import { formatDate } from '../lib/content';
 import TagList from '../components/TagList.astro';
+import 'katex/dist/katex.min.css';
 
 interface ArticleHeading {
   depth: number;
@@ -53,6 +54,70 @@ const { title, date, category, description, image, tags = [], headings = [] } = 
     <Icon name="tabler:arrow-up" aria-hidden="true" />
   </button>
 </BaseLayout>
+
+<script>
+  const diagrams = Array.from(document.querySelectorAll<HTMLPreElement>('.prose pre.mermaid'), (element) => ({
+    element,
+    source: element.textContent ?? '',
+  }));
+
+  if (diagrams.length > 0) {
+    const showError = (element: HTMLElement, source: string, message: string, error: unknown) => {
+      const notice = document.createElement('span');
+      notice.className = 'mermaid-error';
+      notice.setAttribute('role', 'status');
+      notice.textContent = message;
+      element.replaceChildren(notice, document.createTextNode(`\n\n${source}`));
+      delete element.dataset.rendered;
+      console.error(message, error);
+    };
+
+    void import('mermaid').then(async ({ default: mermaid }) => {
+      // 等站点字体就绪再测量标签，避免中文节点宽度按回退字体计算后被裁切。
+      await document.fonts.ready;
+      let renderId = 0;
+      let renderedTheme = '';
+      const renderDiagrams = async () => {
+        const theme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default';
+        if (theme === renderedTheme) return;
+        mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: 'strict',
+          suppressErrorRendering: true,
+          theme,
+          fontFamily: getComputedStyle(document.body).fontFamily,
+        });
+        for (const { element, source } of diagrams) {
+          try {
+            const { svg, bindFunctions } = await mermaid.render(`mermaid-${renderId++}`, source);
+            element.innerHTML = svg;
+            // 使用图形自身宽度，窄屏在容器内滚动，避免整张流程图被缩到文字无法阅读。
+            const diagramSvg = element.querySelector('svg')!;
+            diagramSvg.style.width = `${diagramSvg.viewBox.baseVal.width}px`;
+            diagramSvg.style.maxWidth = 'none';
+            element.dataset.rendered = 'true';
+            bindFunctions?.(element);
+          } catch (error) {
+            showError(element, source, '流程图渲染失败，请检查 Mermaid 语法。', error);
+          }
+        }
+        renderedTheme = theme;
+      };
+
+      // 主题切换与异步绘图串行执行；排队的任务读取当前主题，避免交错写入同一个容器。
+      let pending = Promise.resolve();
+      const redraw = () => { pending = pending.then(renderDiagrams); };
+      const observer = new MutationObserver(redraw);
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+      redraw();
+      await pending;
+    }).catch((error) => {
+      for (const { element, source } of diagrams) {
+        showError(element, source, '流程图加载失败，请刷新页面重试。', error);
+      }
+    });
+  }
+</script>
 
 <script is:inline>
   const backToTop = document.querySelector('#back-to-top');
